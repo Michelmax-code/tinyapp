@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
 
@@ -70,5 +70,12 @@ app.post("/urls/:id", (req, res) => {
 app.post("/urls/:shortURL/edit", (req, res) => {
   const key = req.params.shortURL;
   urlDatabase[key] = req.body.longURL;
+  res.redirect('/urls');
+});
+
+app.post('/urls/:id', (req, res) => {
+  const id = req.params.id;
+  const longURL = req.body.URL;
+  urlDatabase[id] = longURL;
   res.redirect('/urls');
 });
