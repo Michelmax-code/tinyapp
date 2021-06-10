@@ -20,7 +20,7 @@ const urlDatabase = {
 
 
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies["username"]};
+  const templateVars = { urls: urlDatabase, username: users[req.cookies["user_id"]]};
   res.render('urls_index', templateVars);
 });
 
@@ -39,7 +39,7 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  let templateVars = { username: req.cookies["username"]};
+  let templateVars = { username: users[req.cookies["user_id"]]};
   res.render("urls_new", templateVars);
 });
 
@@ -50,7 +50,7 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   let temp = req.params.shortURL; // temp will have the value of shortURL, which is what we type in browser after /urls/:
-  const templateVars = { shortURL: temp, longURL: urlDatabase[temp], username: req.cookies['username']};
+  const templateVars = { shortURL: temp, longURL: urlDatabase[temp], username: users[req.cookies["user_id"]]};
   res.render("urls_show", templateVars);
 });
 
@@ -91,7 +91,7 @@ app.post('/logout', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  const templateVars = { username: req.cookies['username']};
+  const templateVars = { username: users[req.cookies["user_id"]]};
   res.render('urls_register', templateVars);
 });
 
