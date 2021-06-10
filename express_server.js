@@ -7,6 +7,7 @@ app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
 app.set("view engine", "ejs");
 
+
 const generateRandomString = function() {
   let randomString = Math.random().toString(36).substring(2,8);
   return randomString;
@@ -18,9 +19,12 @@ const urlDatabase = {
 };
 
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
+app.get('/urls', (req, res) => {
+  const templateVars = { urls: urlDatabase, username: req.cookies["username"]};
+  res.render('urls_index', templateVars);
 });
+
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
@@ -35,7 +39,8 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let templateVars = { username: req.cookies["username"]};
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls", (req, res) => {
@@ -45,7 +50,7 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   let temp = req.params.shortURL; // temp will have the value of shortURL, which is what we type in browser after /urls/:
-  const templateVars = { shortURL: temp, longURL: urlDatabase[temp] };
+  const templateVars = { shortURL: temp, longURL: urlDatabase[temp], username: req.cookies['username']};
   res.render("urls_show", templateVars);
 });
 
@@ -75,6 +80,12 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post('/login', (req, res) => {
+  console.log('name', req.body.username);
   res.cookie('username', req.body.username);
   res.redirect('/urls');
+});
+
+app.post('/logout', (req, res) => {
+  res.clearCookie("username");
+  res.redirect("/urls");
 });
