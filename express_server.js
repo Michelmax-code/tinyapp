@@ -24,14 +24,14 @@ const findUserByEmail = (email, users) => {
       return users[user];
     }
   }
+  return false;
 };
+
 
 app.get('/urls', (req, res) => {
   const templateVars = { urls: urlDatabase, username: users[req.cookies["user_id"]]};
   res.render('urls_index', templateVars);
 });
-
-
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
@@ -87,7 +87,7 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
@@ -100,10 +100,10 @@ app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   if (email === '' || password === '') {
-    res.send('400: Bad Request', 400);
+    res.send('Error: You need an Email and Password to Register', 400);
   }
-  if (findUserByEmail(req.body.email, users)) {
-    res.send('400: Bad Request', 400);
+  if (findUserByEmail(email, users)) {
+    res.send('403: Bad Request', 400);
   } else {
     const userId = generateRandomString();
     users[userId] = {
@@ -117,7 +117,7 @@ app.post("/register", (req, res) => {
 });
 
 const users = {
-  "userRandomID": {
+  /*"userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
     password: "purple-monkey-dinosaur"
@@ -126,11 +126,21 @@ const users = {
     id: "user2RandomID",
     email: "user2@example.com",
     password: "dishwasher-funk"
-  }
+  }*/
 };
 
 app.get('/login', (req, res) => {
   let templateVars = {username: users[req.cookies['user_id']]};
   res.render('urls_login', templateVars);
+});
+
+app.post('/login', (req, res) => {
+  let user = findUserByEmail(req.body.email, users);
+  if (user && user.password === req.body.password) {
+    res.cookie('user_id', user.id);
+    res.redirect('/urls');
+  } else {
+    res.send('403: Forbidden Error', 403);
+  }
 });
 
