@@ -129,3 +129,8 @@ const users = {
   }
 };
 
+app.get('/login', (req, res) => {
+  let templateVars = {username: users[req.cookies['user_id']]};
+  res.render('urls_login', templateVars);
+});
+
