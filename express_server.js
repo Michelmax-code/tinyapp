@@ -92,5 +92,32 @@ app.post('/logout', (req, res) => {
 
 app.get('/register', (req, res) => {
   const templateVars = { username: req.cookies['username']};
-  res.render('register', templateVars);
+  res.render('urls_register', templateVars);
 });
+
+app.post("/register", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const userId = generateRandomString();
+  users[userId] = {
+    id: userId,
+    email,
+    password
+  };
+  res.cookie('email', email);
+  res.cookie('user_id', userId);
+  res.redirect("/urls");
+});
+
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+};
