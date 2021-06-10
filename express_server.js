@@ -17,7 +17,14 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
-
+//function to search the email in users object
+const findUserByEmail = (email, users) => {
+  for (let user of Object.keys(users)) {
+    if (users[user].email === email) {
+      return users[user];
+    }
+  }
+};
 
 app.get('/urls', (req, res) => {
   const templateVars = { urls: urlDatabase, username: users[req.cookies["user_id"]]};
@@ -79,12 +86,6 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   res.redirect('/urls');
 });
 
-app.post('/login', (req, res) => {
-  console.log('name', req.body.username);
-  res.cookie('username', req.body.username);
-  res.redirect('/urls');
-});
-
 app.post('/logout', (req, res) => {
   res.clearCookie("username");
   res.redirect("/urls");
@@ -98,15 +99,21 @@ app.get('/register', (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const userId = generateRandomString();
-  users[userId] = {
-    id: userId,
-    email,
-    password
-  };
-  res.cookie('email', email);
-  res.cookie('user_id', userId);
-  res.redirect("/urls");
+  if (email === '' || password === '') {
+    res.send('400: Bad Request', 400);
+  }
+  if (findUserByEmail(req.body.email, users)) {
+    res.send('400: Bad Request', 400);
+  } else {
+    const userId = generateRandomString();
+    users[userId] = {
+      id: userId,
+      email,
+      password
+    };
+    res.cookie('user_id', userId);
+    res.redirect("/urls");
+  }
 });
 
 const users = {
@@ -121,3 +128,4 @@ const users = {
     password: "dishwasher-funk"
   }
 };
+
