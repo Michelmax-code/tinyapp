@@ -15,7 +15,13 @@ const generateRandomString = function() {
 
 const urlDatabase = {
   "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userId: "aJ48lW"},
-  "9sm5xK": { longURL: "http://www.google.com", userId: "aJ48lW"}
+  "9sm5xK": { longURL: "http://www.google.com", userId: "aJ48lW"},
+  "7hi8eK": { longURL: "http://www.cnn.com", userId: "maj123"}
+};
+
+
+const users = {
+  "maj123": {id: "maj123", email: "migang9@gmail.com", password: "123"}
 };
 //function to search the email in users object
 const findUserByEmail = (email, users) => {
@@ -27,9 +33,22 @@ const findUserByEmail = (email, users) => {
   return false;
 };
 
+//function to return url by user
+const urlsForUser = (id, urlDatabase) => {
+  let currentUserId = id;
+  let userURLs = {};
+  for (let key in urlDatabase) {
+    if (urlDatabase[key].userId === currentUserId) {
+      userURLs[key] = urlDatabase[key];
+    }
+  }
+  return userURLs;
+};
+
 //Show urls page with the urls
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase, username: users[req.cookies["user_id"]]};
+  const urls = urlsForUser(req.cookies["user_id"], urlDatabase);
+  const templateVars = { username: users[req.cookies["user_id"]], urls};
   res.render('urls_index', templateVars);
 });
 
@@ -134,21 +153,8 @@ app.post("/register", (req, res) => {
   }
 });
 
-const users = {
-  /*"userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
-  }*/
-};
-
 app.get('/login', (req, res) => {
-  let templateVars = {username: users[req.cookies['user_id']]};
+  let templateVars = {username: users[req.cookies['user_id']], users};
   res.render('urls_login', templateVars);
 });
 
