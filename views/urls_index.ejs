@@ -6,7 +6,7 @@
 
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-  <title>TinyApp</title>
+  <title>URLS - TinyApp</title>
 </head>
 <body>
   <header>
@@ -25,13 +25,13 @@
         <% for(let url in urls) { %>
           <tr>
             <td><%= url %></td>
-            <td><%= urls[url] %></td>
+            <td><%= urls[url].longURL %></td>
             <% if (username) { %>
-            <td><form method="POST" action="/urls/<%= url %>/delete">
-              <input type="submit" value="Delete">
+              <td><form method="GET" action="/urls/<%= url %>">
+                <input type="submit" class="btn btn-outline-primary" value="Edit">
             </form>
-            <td><form method="GET" action="/urls/<%= url %>">
-              <input type="submit" value="Edit">
+              <td><form method="POST" action="/urls/<%= url %>/delete">
+                <input type="submit" class="btn btn-outline-danger" value="Delete">
             </form>
             <% } %>
           </tr>
