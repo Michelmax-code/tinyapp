@@ -14,8 +14,8 @@ const generateRandomString = function() {
 };
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userId: "aJ48lW"},
+  "9sm5xK": { longURL: "http://www.google.com", userId: "aJ48lW"}
 };
 //function to search the email in users object
 const findUserByEmail = (email, users) => {
@@ -27,7 +27,7 @@ const findUserByEmail = (email, users) => {
   return false;
 };
 
-
+//Show urls page with the urls
 app.get('/urls', (req, res) => {
   const templateVars = { urls: urlDatabase, username: users[req.cookies["user_id"]]};
   res.render('urls_index', templateVars);
@@ -44,9 +44,16 @@ app.get("/urls.json", (req, res) => {
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
-
+//
 app.get("/urls/new", (req, res) => {
-  let templateVars = { username: users[req.cookies["user_id"]]};
+//const userLogged = {username: users[req.cookies["user_id"]]}; wrong!!
+  const userLogged = users[req.cookies["user_id"]];
+  console.log(userLogged);
+  if (!userLogged) {
+    res.redirect('/login');
+    return;
+  }
+  const templateVars = {username: users[req.cookies["user_id"]]};
   res.render("urls_new", templateVars);
 });
 
@@ -56,17 +63,32 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+  const userLogged = users[req.cookies["user_id"]];
+  console.log(userLogged);
+  if (!userLogged) {
+    res.redirect('/login');
+    return;
+  }
   let temp = req.params.shortURL; // temp will have the value of shortURL, which is what we type in browser after /urls/:
-  const templateVars = { shortURL: temp, longURL: urlDatabase[temp], username: users[req.cookies["user_id"]]};
+  const templateVars = { shortURL: temp, longURL: urlDatabase[temp]["longURL"], username: users[req.cookies["user_id"]]};
   res.render("urls_show", templateVars);
 });
 
 app.post("/urls", (req, res) => {
   let longURL = req.body.longURL;
   let shortURL = generateRandomString();
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL] = {
+    longURL: longURL,
+    userId: users[req.cookies["user_id"]]
+  };
   console.log(urlDatabase);  // Log the POST request body to the console
   res.redirect("/urls"); // Respond with 'Ok' (we will replace this)
+});
+
+app.post("/urls/:shortURL/edit", (req, res) => {
+  const key = req.params.shortURL;
+  urlDatabase[key] = req.body.longURL;
+  res.redirect('/urls');
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
@@ -76,14 +98,10 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
-  urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL] = {
+    longURL: req.body.longURL,
+    userId: users[req.cookies["user_id"]]};
   res.redirect(`/urls/${shortURL}`);
-});
-
-app.post("/urls/:shortURL/edit", (req, res) => {
-  const key = req.params.shortURL;
-  urlDatabase[key] = req.body.longURL;
-  res.redirect('/urls');
 });
 
 app.post('/logout', (req, res) => {
