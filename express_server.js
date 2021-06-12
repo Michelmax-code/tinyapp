@@ -26,7 +26,6 @@ const urlDatabase = {
 const users = {
   "maj123": {id: "maj123", email: "migang9@gmail.com", password: bcrypt.hashSync('123', saltRounds)},
   "maj456": {id: "maj456", email: "majs8323@gmail.com", password: bcrypt.hashSync('12', saltRounds)}
-//"$2b$10$rFM9FmoBT6m5OrxsgGr.ouWRnH9Ufgc6hDEKn7pgnwHhlBTGHWsgC"//"$2b$10$1xHPOK3EVC76gSQRbffeV.8AkDb79Lf67bPbT9y1c0oWjmJCXy.kS"
 };
 
 // create new user
@@ -116,9 +115,8 @@ app.get("/urls.json", (req, res) => {
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
-//
+// Get new Urls
 app.get("/urls/new", (req, res) => {
-//const userLogged = {username: users[req.cookies["user_id"]]}; wrong!!
   const userLogged = users[req.session["user_id"]];
   console.log(userLogged);
   if (!userLogged) {
@@ -140,7 +138,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: temp, longURL: urlDatabase[temp]["longURL"], username: users[req.session["user_id"]]};
   res.render("urls_show", templateVars);
 });
-
+//Show the urls
 app.post("/urls", (req, res) => {
   let longURL = req.body.longURL;
   let shortURL = generateRandomString();
@@ -151,13 +149,13 @@ app.post("/urls", (req, res) => {
   console.log(urlDatabase);  // Log the POST request body to the console
   res.redirect("/urls"); // Respond with 'Ok' (we will replace this)
 });
-
+//Edit Urls
 app.post("/urls/:shortURL/edit", (req, res) => {
   const key = req.params.shortURL;
   urlDatabase[key] = req.body.longURL;
   res.redirect('/urls');
 });
-
+//Delete urls
 app.post("/urls/:shortURL/delete", (req, res) => {
   const userLogged = [req.session["user_id"]];
   let urlDel = req.params.shortURL;
@@ -177,7 +175,7 @@ app.post("/urls/:id", (req, res) => {
     userId: users[req.session["user_id"]]};
   res.redirect(`/urls/${shortURL}`);
 });
-
+// Logout user
 app.post('/logout', (req, res) => {
   req.session["user_id"] = null;
   res.redirect("/login");
