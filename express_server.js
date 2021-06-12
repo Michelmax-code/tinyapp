@@ -2,11 +2,11 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const cookieParser = require('cookie-parser');
-
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
 app.set("view engine", "ejs");
-
 
 const generateRandomString = function() {
   let randomString = Math.random().toString(36).substring(2,8);
@@ -19,11 +19,25 @@ const urlDatabase = {
   "7hi8eK": { longURL: "http://www.cnn.com", userId: "maj123"}
 };
 
-
 const users = {
-  "maj123": {id: "maj123", email: "migang9@gmail.com", password: "123"},
-  "maj456": {id: "maj456", email: "majs8323@gmail.com", password: "123"}
+  "maj123": {id: "maj123", email: "migang9@gmail.com", password: "$2b$10$rFM9FmoBT6m5OrxsgGr.ouWRnH9Ufgc6hDEKn7pgnwHhlBTGHWsgC"},
+  "maj456": {id: "maj456", email: "majs8323@gmail.com", password: "$2b$10$1xHPOK3EVC76gSQRbffeV.8AkDb79Lf67bPbT9y1c0oWjmJCXy.kS"}
+
 };
+//console.log('for example', bcrypt.hashSync('12', saltRounds));
+// create new user
+const addNewUser = (email, textPassword) => {
+  const userId = generateRandomString();
+  const password = bcrypt.hashSync(textPassword, saltRounds);
+  const newUserObj = {
+    id: userId,
+    email,
+    password,
+  };
+  users[userId] = newUserObj;
+  return userId;
+};
+
 //function to search the email in users object
 const findUserByEmail = (email, users) => {
   for (let user of Object.keys(users)) {
@@ -45,6 +59,52 @@ const urlsForUser = (id, urlDatabase) => {
   }
   return userURLs;
 };
+
+//For new registration - page to register
+app.get('/register', (req, res) => {
+  const templateVars = { username: users[req.cookies["user_id"]]};
+  res.render('urls_register', templateVars);
+});
+// post the register
+app.post("/register", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const user = findUserByEmail(email, users);
+  //const hashPwd = bcrypt.hashSync(password, saltRounds);
+  if (email === '' || password === '') {
+    res.send('Error: You need an Email and Password to Register', 400);
+  }
+  if (!user) {
+    const userId = addNewUser(email, password);
+    res.cookie('user_id', userId);
+    res.redirect("/urls");
+  } else {
+    res.status(403).send('You have to use another combination!');
+    //req.body['password'] = hashPwd;
+    //const userId = generateRandomString();
+    //users[userId] = {
+    //  id: userId,
+    //  email,
+    //  password
+    //};
+  }
+});
+// login section
+app.get('/login', (req, res) => {
+  let templateVars = {username: users[req.cookies['user_id']], users};
+  res.render('urls_login', templateVars);
+});
+
+app.post('/login', (req, res) => {
+  let user = findUserByEmail(req.body.email, users);
+  if (user && bcrypt.compareSync(req.body.password, user.password)) {
+  //if (user && user.password === req.body.password) {
+    res.cookie('user_id', user.id);
+    res.redirect('/urls');
+  } else {
+    res.send('403: Forbidden Error', 403);
+  }
+});
 
 //Show urls page with the urls
 app.get('/urls', (req, res) => {
@@ -113,16 +173,6 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  //const urls = urlsForUser([req.cookies['user_id']], urlDatabase);
-  //const templateVars = { username: users[req.cookies["user_id"]], urls.id};
-  //console.log("prueba", templateVars);
-  //const shortURL = req.params.shortURL;
-  //if (actualUser !== urlDatabase[shortURL].userID) {
-  //  res.send('This id does not belong to you');
-  //}
-  //const templateVars = { username: users[req.cookies["user_id"]], urls};
-  
-  //const urls = urlsForUser(req.cookies["user_id"], urlDatabase);
   const userLogged = [req.cookies["user_id"]];
   let urlDel = req.params.shortURL;
   if (!userLogged) {
@@ -147,43 +197,4 @@ app.post('/logout', (req, res) => {
   res.redirect("/login");
 });
 
-app.get('/register', (req, res) => {
-  const templateVars = { username: users[req.cookies["user_id"]]};
-  res.render('urls_register', templateVars);
-});
-
-app.post("/register", (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
-  if (email === '' || password === '') {
-    res.send('Error: You need an Email and Password to Register', 400);
-  }
-  if (findUserByEmail(email, users)) {
-    res.send('403: Bad Request', 400);
-  } else {
-    const userId = generateRandomString();
-    users[userId] = {
-      id: userId,
-      email,
-      password
-    };
-    res.cookie('user_id', userId);
-    res.redirect("/urls");
-  }
-});
-
-app.get('/login', (req, res) => {
-  let templateVars = {username: users[req.cookies['user_id']], users};
-  res.render('urls_login', templateVars);
-});
-
-app.post('/login', (req, res) => {
-  let user = findUserByEmail(req.body.email, users);
-  if (user && user.password === req.body.password) {
-    res.cookie('user_id', user.id);
-    res.redirect('/urls');
-  } else {
-    res.send('403: Forbidden Error', 403);
-  }
-});
 
