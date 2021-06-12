@@ -4,6 +4,7 @@ const PORT = 8080; // default port 8080
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const { findUserByEmail } = require('./helpers.js');
 app.use(express.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
@@ -41,16 +42,6 @@ const addNewUser = (email, textPassword) => {
   return userId;
 };
 
-//function to search the email in users object
-const findUserByEmail = (email, users) => {
-  for (let user of Object.keys(users)) {
-    if (users[user].email === email) {
-      return users[user];
-    }
-  }
-  return false;
-};
-
 //function to return url by user
 const urlsForUser = (id, urlDatabase) => {
   let currentUserId = id;
@@ -73,9 +64,8 @@ app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const user = findUserByEmail(email, users);
-  //const hashPwd = bcrypt.hashSync(password, saltRounds);
   if (email === '' || password === '') {
-    res.send('Error: You need an Email and Password to Register', 400);
+    res.status(400).send('Error: You need an Email and Password to Register');
   }
   if (!user) {
     const userId = addNewUser(email, password);
@@ -83,13 +73,6 @@ app.post("/register", (req, res) => {
     res.redirect("/urls");
   } else {
     res.status(403).send('You have to use another combination!');
-    //req.body['password'] = hashPwd;
-    //const userId = generateRandomString();
-    //users[userId] = {
-    //  id: userId,
-    //  email,
-    //  password
-    //};
   }
 });
 // login section
