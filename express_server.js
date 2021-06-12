@@ -88,7 +88,7 @@ app.post('/login', (req, res) => {
     req.session['user_id'] = user.id;
     res.redirect('/urls');
   } else {
-    res.send('403: Forbidden Error', 403);
+    res.status(403).send('Forbidden Error: You are not registered or You are using the wrong combination');
   }
 });
 
