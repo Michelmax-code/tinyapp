@@ -24,7 +24,7 @@ const users = {
   "maj456": {id: "maj456", email: "majs8323@gmail.com", password: "$2b$10$1xHPOK3EVC76gSQRbffeV.8AkDb79Lf67bPbT9y1c0oWjmJCXy.kS"}
 
 };
-//console.log('for example', bcrypt.hashSync('12', saltRounds));
+
 // create new user
 const addNewUser = (email, textPassword) => {
   const userId = generateRandomString();
