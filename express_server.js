@@ -14,14 +14,15 @@ const generateRandomString = function() {
 };
 
 const urlDatabase = {
-  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userId: "aJ48lW"},
-  "9sm5xK": { longURL: "http://www.google.com", userId: "aJ48lW"},
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userId: "maj456"},
+  "9sm5xK": { longURL: "http://www.google.com", userId: "maj456"},
   "7hi8eK": { longURL: "http://www.cnn.com", userId: "maj123"}
 };
 
 
 const users = {
-  "maj123": {id: "maj123", email: "migang9@gmail.com", password: "123"}
+  "maj123": {id: "maj123", email: "migang9@gmail.com", password: "123"},
+  "maj456": {id: "maj456", email: "majs8323@gmail.com", password: "123"}
 };
 //function to search the email in users object
 const findUserByEmail = (email, users) => {
@@ -47,6 +48,12 @@ const urlsForUser = (id, urlDatabase) => {
 
 //Show urls page with the urls
 app.get('/urls', (req, res) => {
+  const userLogged = users[req.cookies["user_id"]];
+  console.log(userLogged);
+  if (!userLogged) {
+    res.send('First, Login or Register, thanks!!');
+    return;
+  }
   const urls = urlsForUser(req.cookies["user_id"], urlDatabase);
   const templateVars = { username: users[req.cookies["user_id"]], urls};
   res.render('urls_index', templateVars);
@@ -74,11 +81,6 @@ app.get("/urls/new", (req, res) => {
   }
   const templateVars = {username: users[req.cookies["user_id"]]};
   res.render("urls_new", templateVars);
-});
-
-app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
-  res.render("urls_index", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -111,6 +113,23 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
+  //const urls = urlsForUser([req.cookies['user_id']], urlDatabase);
+  //const templateVars = { username: users[req.cookies["user_id"]], urls.id};
+  //console.log("prueba", templateVars);
+  //const shortURL = req.params.shortURL;
+  //if (actualUser !== urlDatabase[shortURL].userID) {
+  //  res.send('This id does not belong to you');
+  //}
+  //const templateVars = { username: users[req.cookies["user_id"]], urls};
+  
+  //const urls = urlsForUser(req.cookies["user_id"], urlDatabase);
+  const userLogged = [req.cookies["user_id"]];
+  let urlDel = req.params.shortURL;
+  if (!userLogged) {
+    return res.redirect('/login');
+  } else if (urlDatabase[urlDel].userID !== userLogged) {
+    res.send('This is not belong to you');
+  }
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls"); // Respond with 'Ok' (we will replace this)
 });
@@ -125,7 +144,7 @@ app.post("/urls/:id", (req, res) => {
 
 app.post('/logout', (req, res) => {
   res.clearCookie("user_id");
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 app.get('/register', (req, res) => {
