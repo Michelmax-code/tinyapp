@@ -99,15 +99,14 @@ app.post('/login', (req, res) => {
 //Show urls page with the urls
 app.get('/urls', (req, res) => {
   const userLogged = users[req.session["user_id"]];
-  console.log(userLogged);
+  //console.log(userLogged);
   if (!userLogged) {
     res.send('First, Login or Register, thanks!!');
     return;
   }
   const urls = urlsForUser(req.session["user_id"], urlDatabase);
-  console.log("test for urls", urls, urlDatabase);
+  //console.log("test for urls", urls, urlDatabase);
   const templateVars = { username: users[req.session["user_id"]], urls};
-  console.log(" test for URL", urlDatabase);
   res.render('urls_index', templateVars);
 });
 
@@ -125,7 +124,7 @@ app.get("/hello", (req, res) => {
 // Get new Urls
 app.get("/urls/new", (req, res) => {
   const userLogged = users[req.session["user_id"]];
-  console.log(userLogged);
+  //console.log(userLogged);
   if (!userLogged) {
     res.redirect('/login');
     return;
@@ -133,10 +132,10 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {username: users[req.session["user_id"]]};
   res.render("urls_new", templateVars);
 });
-
+//Create new shortURL
 app.get("/urls/:shortURL", (req, res) => {
   const userLogged = users[req.session["user_id"]];
-  console.log(userLogged);
+  //console.log(userLogged);
   if (!userLogged) {
     res.redirect('/login');
     return;
@@ -153,15 +152,9 @@ app.post("/urls", (req, res) => {
     longURL: longURL,
     userId: users[req.session["user_id"]].id
   };
-  console.log(urlDatabase);  // Log the POST request body to the console
+  //console.log(urlDatabase);  // Log the POST request body to the console
   res.redirect("/urls"); // Respond with 'Ok' (we will replace this)
 });
-
-/*app.post("/urls/:shortURL/edit", (req, res) => {
-  const key = req.params.shortURL;
-  urlDatabase[key] = req.body.longURL;
-  res.redirect('/urls');
-});*/
 //Delete urls
 app.post("/urls/:shortURL/delete", (req, res) => {
   const userLogged = [req.session["user_id"]];
@@ -172,7 +165,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[urlDel];
   res.redirect("/urls"); // Respond with 'Ok' (we will replace this)
 });
-//edit urls
+//Edit urls
 app.post("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
   urlDatabase[shortURL] = {
