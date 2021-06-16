@@ -155,25 +155,23 @@ app.post("/urls", (req, res) => {
   console.log(urlDatabase);  // Log the POST request body to the console
   res.redirect("/urls"); // Respond with 'Ok' (we will replace this)
 });
-//Edit Urls
-app.post("/urls/:shortURL/edit", (req, res) => {
+
+/*app.post("/urls/:shortURL/edit", (req, res) => {
   const key = req.params.shortURL;
   urlDatabase[key] = req.body.longURL;
   res.redirect('/urls');
-});
+});*/
 //Delete urls
 app.post("/urls/:shortURL/delete", (req, res) => {
   const userLogged = [req.session["user_id"]];
   let urlDel = req.params.shortURL;
   if (!userLogged) {
     return res.redirect('/login');
-  } else if (urlDatabase[urlDel].userID !== userLogged) {
-    res.send('This is not belong to you');
   }
-  delete urlDatabase[req.params.shortURL];
+  delete urlDatabase[urlDel];
   res.redirect("/urls"); // Respond with 'Ok' (we will replace this)
 });
-
+//edit urls
 app.post("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
   urlDatabase[shortURL] = {
