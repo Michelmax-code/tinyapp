@@ -105,6 +105,7 @@ app.get('/urls', (req, res) => {
     return;
   }
   const urls = urlsForUser(req.session["user_id"], urlDatabase);
+  console.log("test for urls", urls, urlDatabase);
   const templateVars = { username: users[req.session["user_id"]], urls};
   console.log(" test for URL", urlDatabase);
   res.render('urls_index', templateVars);
@@ -176,7 +177,7 @@ app.post("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
   urlDatabase[shortURL] = {
     longURL: req.body.longURL,
-    userId: users[req.session["user_id"]]};
+    userId: req.session["user_id"]};
   res.redirect(`/urls/${shortURL}`);
 });
 // Logout user
