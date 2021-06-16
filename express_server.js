@@ -52,6 +52,11 @@ const urlsForUser = (id, urlDatabase) => {
   }
   return userURLs;
 };
+//main website /800 redirected to login
+app.get('/', (req, res) => {
+  res.redirect('/login');
+});
+
 
 //For new registration - page to register
 app.get('/register', (req, res) => {
@@ -101,6 +106,7 @@ app.get('/urls', (req, res) => {
   }
   const urls = urlsForUser(req.session["user_id"], urlDatabase);
   const templateVars = { username: users[req.session["user_id"]], urls};
+  console.log(" test for URL", urlDatabase);
   res.render('urls_index', templateVars);
 });
 
@@ -144,7 +150,7 @@ app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = {
     longURL: longURL,
-    userId: users[req.session["user_id"]]
+    userId: users[req.session["user_id"]].id
   };
   console.log(urlDatabase);  // Log the POST request body to the console
   res.redirect("/urls"); // Respond with 'Ok' (we will replace this)
